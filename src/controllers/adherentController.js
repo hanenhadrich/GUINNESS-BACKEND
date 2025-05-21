@@ -75,7 +75,7 @@ export const updateAdherent = async (req, res) => {
       return res.status(404).json({ message: 'Adhérent non trouvé' });
     }
 
-    // Vérification des conflits pour l'email et le téléphone
+
     const existingEmail = await Adherent.findOne({ email: req.body.email, _id: { $ne: adherentId } });
     if (existingEmail) {
       return res.status(400).json({ message: 'Cet email est déjà utilisé par un autre adhérent.' });
@@ -86,12 +86,12 @@ export const updateAdherent = async (req, res) => {
       return res.status(400).json({ message: 'Ce numéro de téléphone est déjà utilisé par un autre adhérent.' });
     }
 
-    // Mettre à jour l'adhérent avec les nouvelles données
+   
     Object.assign(adherent, req.body);
     const updatedAdherent = await adherent.save();
     console.log("Adhérent mis à jour avec succès:", updatedAdherent);
 
-    // Retourner l'adhérent mis à jour
+
     res.status(200).json(updatedAdherent);
   } catch (error) {
     console.error("Erreur lors de la mise à jour de l'adhérent:", error.message);

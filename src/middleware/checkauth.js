@@ -13,7 +13,7 @@ const checkAuth = async (req, res, next) => {
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
     const userId = decodedToken.userId;
 
-    // Import dynamique pour éviter le cycle
+ 
     const { default: User } = await import("../models/userModel.js");
 
     const user = await User.findById(userId);

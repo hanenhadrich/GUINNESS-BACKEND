@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
-// Définition du schéma de l'utilisateur
+
 const UserSchema = new mongoose.Schema(
   {
     firstName: { type: String, required: true },
@@ -22,7 +22,7 @@ const UserSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Hachage du mot de passe avant sauvegarde
+
 UserSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
   try {
@@ -34,10 +34,10 @@ UserSchema.pre('save', async function (next) {
   }
 });
 
-// Méthode de comparaison de mot de passe
+
 UserSchema.methods.comparePassword = async function (password) {
   return bcrypt.compare(password, this.password);
 };
 
-// Export du modèle utilisateur
+
 export default mongoose.model('User', UserSchema);

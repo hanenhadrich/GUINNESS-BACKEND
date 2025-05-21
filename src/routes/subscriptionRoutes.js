@@ -8,7 +8,7 @@ import {
 
 const router = express.Router();
 
-// ⚠️ Enlève le préfixe `/subscriptions`
+
 router.get('/', getAllSubscriptions);
 router.post('/', createSubscription);
 router.put('/:subscriptionId', updateSubscription);

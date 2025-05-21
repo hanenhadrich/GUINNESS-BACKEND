@@ -1,7 +1,7 @@
 import Subscription from '../models/subscriptionModel.js';
-import { subscriptionValidator } from '../validators/subscriptionValidator.js'; // Validation si nécessaire
+import { subscriptionValidator } from '../validators/subscriptionValidator.js';
 
-// Récupérer tous les abonnements
+
 export const getAllSubscriptions = async (req, res) => {
   try {
     const subscriptions = await Subscription.find().populate('adherent', 'nom prenom email');
@@ -12,7 +12,7 @@ export const getAllSubscriptions = async (req, res) => {
   }
 };
 
-// Créer un abonnement
+
 export const createSubscription = async (req, res) => {
   const { error } = subscriptionValidator.validate(req.body);
   if (error) {
@@ -22,17 +22,17 @@ export const createSubscription = async (req, res) => {
   try {
     const { adherent, startDate, duration, type } = req.body;
 
-    // Calculer la date de fin en fonction de la durée
+   
     let endDate;
     if (type === 'semaine') {
       endDate = new Date(startDate);
-      endDate.setDate(endDate.getDate() + duration * 7); // Durée en semaines
+      endDate.setDate(endDate.getDate() + duration * 7);
     } else if (type === 'mois') {
       endDate = new Date(startDate);
-      endDate.setMonth(endDate.getMonth() + duration); // Durée en mois
+      endDate.setMonth(endDate.getMonth() + duration); 
     } else if (type === 'an') {
       endDate = new Date(startDate);
-      endDate.setFullYear(endDate.getFullYear() + duration); // Durée en années
+      endDate.setFullYear(endDate.getFullYear() + duration); 
     }
 
     const newSubscription = new Subscription({
@@ -51,7 +51,7 @@ export const createSubscription = async (req, res) => {
   }
 };
 
-// Mettre à jour un abonnement
+
 export const updateSubscription = async (req, res) => {
   const { subscriptionId } = req.params;
   const { error } = subscriptionValidator.validate(req.body);
@@ -67,7 +67,7 @@ export const updateSubscription = async (req, res) => {
 
     const { startDate, duration, type } = req.body;
 
-    // Recalculer la date de fin
+
     let endDate;
     if (type === 'semaine') {
       endDate = new Date(startDate);
@@ -80,7 +80,7 @@ export const updateSubscription = async (req, res) => {
       endDate.setFullYear(endDate.getFullYear() + duration);
     }
 
-    // Mettre à jour l'abonnement
+
     subscription.startDate = startDate;
     subscription.duration = duration;
     subscription.type = type;
@@ -94,7 +94,7 @@ export const updateSubscription = async (req, res) => {
   }
 };
 
-// Supprimer un abonnement
+
 export const deleteSubscription = async (req, res) => {
   const { subscriptionId } = req.params;
 

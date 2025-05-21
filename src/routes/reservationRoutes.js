@@ -10,7 +10,7 @@ const router = express.Router();
 
 router.get('/', getAllReservations);
 router.post('/', createReservation);
-router.put('/:ReservationId', updateReservation);
-router.delete('/:ReservationId', deleteReservation);
+router.put('/:reservationId', updateReservation);
+router.delete('/:reservationId', deleteReservation);
 
 export default router;
