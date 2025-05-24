@@ -35,21 +35,21 @@ export const getAllAdherents = async (req, res) => {
 
 
 export const createAdherent = async (req, res) => {
-  const { error } = adherentValidator.validate(req.body);
+  const { error } = adherentValidator.validate(req.body, { abortEarly: false });
   if (error) {
-    return res.status(400).json({ message: 'Données invalides', details: error.details });
+    const messages = error.details.map(detail => detail.message);
+    return res.status(400).json(messages); // renvoie un tableau simple
   }
 
   try {
-    
     const existingEmail = await Adherent.findOne({ email: req.body.email });
     if (existingEmail) {
-      return res.status(400).json({ message: 'Cet email est déjà utilisé par un autre adhérent.' });
+      return res.status(400).json(['Cet email est déjà utilisé par un autre adhérent.']);
     }
 
     const existingTelephone = await Adherent.findOne({ telephone: req.body.telephone });
     if (existingTelephone) {
-      return res.status(400).json({ message: 'Ce numéro de téléphone est déjà utilisé par un autre adhérent.' });
+      return res.status(400).json(['Ce numéro de téléphone est déjà utilisé par un autre adhérent.']);
     }
 
     const newAdherent = new Adherent(req.body);
@@ -57,16 +57,19 @@ export const createAdherent = async (req, res) => {
     res.status(201).json(savedAdherent);
   } catch (error) {
     console.error("Erreur lors de la création de l'adhérent:", error.message);
-    res.status(500).json({ message: "Erreur lors de la création de l'adhérent", error: error.message });
+    res.status(500).json(['Erreur lors de la création de l\'adhérent']);
   }
 };
 
+
 export const updateAdherent = async (req, res) => {
   const { adherentId } = req.params;
-  const { error } = adherentValidator.validate(req.body);
-  if (error) {
-    return res.status(400).json({ message: 'Données invalides', details: error.details });
-  }
+    const { error } = adherentValidator.validate(req.body, { abortEarly: false });
+    if (error) {
+      const messages = error.details.map(detail => detail.message);
+      return res.status(400).json(messages);
+    }
+
 
   try {
     console.log("Tentative de mise à jour de l'adhérent avec ID:", adherentId);

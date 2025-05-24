@@ -14,8 +14,8 @@ const router = express.Router();
 
 
 router.get('/', getAllAdherents);
-router.post('/', checkAuth, createAdherent);
-router.put('/:adherentId', checkAuth, updateAdherent);
-router.delete('/:adherentId', checkAuth, deleteAdherent);
+router.post('/', createAdherent);
+router.put('/:adherentId',  updateAdherent);
+router.delete('/:adherentId',  deleteAdherent);
 
 export default router;

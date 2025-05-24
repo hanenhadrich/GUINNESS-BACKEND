@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import User from '../models/userModel.js';
 import { registerValidator, loginValidator } from '../validators/userValidator.js';
 
-// Inscription
+
 export const register = async (req, res) => {
     try {
         const validationResult = registerValidator.validate(req.body, { abortEarly: false });
@@ -32,8 +32,8 @@ export const register = async (req, res) => {
     }
 };
 
-// Connexion
-export const login = async (req, res) => {
+
+    export const login = async (req, res) => {
     try {
         const validationResult = loginValidator.validate(req.body, { abortEarly: false });
         if (validationResult.error) {
@@ -42,14 +42,14 @@ export const login = async (req, res) => {
 
         const { email, password } = req.body;
 
-        // Vérifier si l'utilisateur existe dans la base de données
+        
         const user = await User.findOne({ email });
         if (!user) {
             console.log("User not found with this email:", email);
             return res.status(401).json({ error: 'Wrong email and/or password' });
         }
 
-        // Comparaison des mots de passe
+        
         const passwordsMatch = await user.comparePassword(password);
         console.log("Password match result:", passwordsMatch);
 
@@ -60,7 +60,7 @@ export const login = async (req, res) => {
         const userData = user.toObject();
         delete userData.password;
 
-        // Générer un token JWT
+        
         const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
         res.status(200).json({
