@@ -1,10 +1,35 @@
 import Subscription from '../models/subscriptionModel.js';
 import { subscriptionValidator } from '../validators/subscriptionValidator.js';
+import mongoose from 'mongoose';
 
+
+// ✅ Fonction utilitaire pour transformer les erreurs Joi en objet simple
+const formatJoiErrors = (details) => {
+  const errors = {};
+  details.forEach((err) => {
+    const field = err.context.key;
+    errors[field] = err.message;
+  });
+  return errors;
+};
+
+// ✅ Fonction utilitaire pour calculer la date de fin d’un abonnement
+const calculateEndDate = (startDate, duration, type) => {
+  const endDate = new Date(startDate);
+  if (type === 'semaine') {
+    endDate.setDate(endDate.getDate() + duration * 7);
+  } else if (type === 'mois') {
+    endDate.setMonth(endDate.getMonth() + duration);
+  } else if (type === 'an') {
+    endDate.setFullYear(endDate.getFullYear() + duration);
+  }
+  return endDate;
+};
 
 export const getAllSubscriptions = async (req, res) => {
   try {
-    const subscriptions = await Subscription.find().populate('adherent', 'nom prenom email');
+    const subscriptions = await Subscription.find()
+      .populate('adherent', 'nom prenom email'); // Récupère uniquement les champs nécessaires
     res.status(200).json(subscriptions);
   } catch (error) {
     console.error("Erreur lors de la récupération des abonnements:", error.message);
@@ -12,91 +37,139 @@ export const getAllSubscriptions = async (req, res) => {
   }
 };
 
-
 export const createSubscription = async (req, res) => {
   const { error } = subscriptionValidator.validate(req.body);
   if (error) {
-    return res.status(400).json({ message: 'Données invalides', details: error.details });
+    return res.status(400).json(formatJoiErrors(error.details));
   }
 
   try {
-    const { adherent, startDate, duration, type } = req.body;
+    let { adherent, startDate, duration, type } = req.body;
 
-   
-    let endDate;
-    if (type === 'semaine') {
-      endDate = new Date(startDate);
-      endDate.setDate(endDate.getDate() + duration * 7);
-    } else if (type === 'mois') {
-      endDate = new Date(startDate);
-      endDate.setMonth(endDate.getMonth() + duration); 
-    } else if (type === 'an') {
-      endDate = new Date(startDate);
-      endDate.setFullYear(endDate.getFullYear() + duration); 
+    // Vérifier l'ID de l'adhérent
+    if (!mongoose.Types.ObjectId.isValid(adherent)) {
+      return res.status(400).json({ adherent: "ID adhérent invalide" });
     }
 
+    const adherentId = new mongoose.Types.ObjectId(adherent);
+
+    // Normaliser la date de début
+    const normalizedStartDate = new Date(startDate);
+    normalizedStartDate.setHours(0, 0, 0, 0);
+
+    // Vérifier la validité de la date
+    if (isNaN(normalizedStartDate.getTime())) {
+      return res.status(400).json({ startDate: "Date de début invalide" });
+    }
+
+    // Vérifier s’il existe déjà un abonnement actif
+    const existing = await Subscription.findOne({ adherent: adherentId });
+    if (existing && existing.endDate >= new Date()) {
+      return res.status(409).json({
+        adherentId: "Un abonnement actif existe déjà pour cet adhérent.",
+      });
+    }
+
+    const endDate = calculateEndDate(normalizedStartDate, duration, type);
+
     const newSubscription = new Subscription({
-      adherent,
-      startDate,
+      adherent: adherentId,
+      startDate: normalizedStartDate,
       duration,
       type,
-      endDate
+      endDate,
     });
 
     const savedSubscription = await newSubscription.save();
     res.status(201).json(savedSubscription);
   } catch (error) {
     console.error("Erreur lors de la création de l'abonnement:", error.message);
-    res.status(500).json({ message: "Erreur lors de la création de l'abonnement", error: error.message });
+    res.status(500).json({
+      message: "Erreur lors de la création de l'abonnement",
+      error: error.message,
+    });
   }
 };
 
-
 export const updateSubscription = async (req, res) => {
   const { subscriptionId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(subscriptionId)) {
+    return res.status(400).json({ message: "ID d'abonnement invalide" });
+  }
+
   const { error } = subscriptionValidator.validate(req.body);
   if (error) {
-    return res.status(400).json({ message: 'Données invalides', details: error.details });
+    return res.status(400).json(formatJoiErrors(error.details));
   }
 
   try {
     const subscription = await Subscription.findById(subscriptionId);
     if (!subscription) {
-      return res.status(404).json({ message: 'Abonnement non trouvé' });
+      return res.status(404).json({ message: "Abonnement non trouvé" });
     }
 
-    const { startDate, duration, type } = req.body;
-
-
-    let endDate;
-    if (type === 'semaine') {
-      endDate = new Date(startDate);
-      endDate.setDate(endDate.getDate() + duration * 7);
-    } else if (type === 'mois') {
-      endDate = new Date(startDate);
-      endDate.setMonth(endDate.getMonth() + duration);
-    } else if (type === 'an') {
-      endDate = new Date(startDate);
-      endDate.setFullYear(endDate.getFullYear() + duration);
+    const { adherent, startDate, duration, type } = req.body; // ajout adherent
+    if (!adherent) {
+      return res.status(400).json({ adherent: "Adhérent requis" });
     }
 
+    // Vérifier les doublons : existe-t-il un abonnement autre que celui qu'on modifie,
+    // avec le même adhérent et le même type, qui pourrait se chevaucher ?
 
-    subscription.startDate = startDate;
+    const normalizedStartDate = new Date(startDate);
+    normalizedStartDate.setHours(0, 0, 0, 0);
+
+    if (isNaN(normalizedStartDate.getTime())) {
+      return res.status(400).json({ startDate: "Date de début invalide" });
+    }
+
+    const endDate = calculateEndDate(normalizedStartDate, duration, type);
+
+    // Recherche d'un abonnement conflictuel
+    const duplicate = await Subscription.findOne({
+      _id: { $ne: subscriptionId }, // exclure abonnement actuel
+      adherent: adherent,
+      type: type,
+      $or: [
+        { 
+          startDate: { $lte: endDate }, 
+          endDate: { $gte: normalizedStartDate }
+        }
+      ],
+    });
+
+    if (duplicate) {
+      return res.status(409).json({
+        message: "Un abonnement pour cet adhérent avec ce type existe déjà sur cette période."
+      });
+    }
+
+    // Mise à jour si pas de conflit
+    subscription.adherent = adherent;
+    subscription.startDate = normalizedStartDate;
     subscription.duration = duration;
     subscription.type = type;
     subscription.endDate = endDate;
 
     const updatedSubscription = await subscription.save();
     res.status(200).json(updatedSubscription);
+
   } catch (error) {
     console.error("Erreur lors de la mise à jour de l'abonnement:", error.message);
-    res.status(500).json({ message: "Erreur lors de la mise à jour de l'abonnement", error: error.message });
+    res.status(500).json({
+      message: "Erreur lors de la mise à jour de l'abonnement",
+      error: error.message,
+    });
   }
 };
 
-
 export const deleteSubscription = async (req, res) => {
   const { subscriptionId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(subscriptionId)) {
+    return res.status(400).json({ message: "ID d'abonnement invalide" });
+  }
 
   try {
     const subscription = await Subscription.findByIdAndDelete(subscriptionId);
@@ -107,6 +180,9 @@ export const deleteSubscription = async (req, res) => {
     res.status(200).json({ message: 'Abonnement supprimé avec succès' });
   } catch (error) {
     console.error("Erreur lors de la suppression de l'abonnement:", error.message);
-    res.status(500).json({ message: "Erreur lors de la suppression de l'abonnement", error: error.message });
+    res.status(500).json({
+      message: "Erreur lors de la suppression de l'abonnement",
+      error: error.message
+    });
   }
 };
