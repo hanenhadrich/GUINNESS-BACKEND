@@ -28,14 +28,50 @@ const calculateEndDate = (startDate, duration, type) => {
 
 export const getAllSubscriptions = async (req, res) => {
   try {
-    const subscriptions = await Subscription.find()
-      .populate('adherent', 'nom prenom email'); // Récupère uniquement les champs nécessaires
+    let { nomPrenom, startDate } = req.query;
+
+    if (nomPrenom) {
+      nomPrenom = nomPrenom.replace(/^["']|["']$/g, '');
+    }
+
+    let filter = {};
+
+    if (startDate) {
+      const parsedDate = new Date(startDate);
+      if (isNaN(parsedDate.getTime())) {
+        return res.status(400).json({ message: 'Date de début invalide' });
+      }
+      filter.startDate = {
+        $gte: new Date(parsedDate.setHours(0, 0, 0, 0)),
+        $lt: new Date(parsedDate.setHours(23, 59, 59, 999)),
+      };
+    }
+
+    let subscriptions = await Subscription.find(filter).populate({
+      path: 'adherent',
+      select: 'nom prenom email',
+    });
+
+    if (nomPrenom) {
+      const search = nomPrenom.toLowerCase().trim();
+      subscriptions = subscriptions.filter((sub) => {
+        if (!sub.adherent) return false;
+        const fullName = `${sub.adherent.nom} ${sub.adherent.prenom}`.toLowerCase();
+        return fullName.includes(search);
+      });
+    } else {
+      subscriptions = subscriptions.filter((sub) => sub.adherent !== null);
+    }
+
     res.status(200).json(subscriptions);
   } catch (error) {
-    console.error("Erreur lors de la récupération des abonnements:", error.message);
+    console.error('Erreur lors de la récupération des abonnements:', error.message);
     res.status(500).json({ message: 'Erreur interne du serveur', error: error.message });
   }
 };
+
+
+
 
 export const createSubscription = async (req, res) => {
   const { error } = subscriptionValidator.validate(req.body);
