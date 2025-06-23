@@ -1,7 +1,7 @@
+import mongoose from 'mongoose';
 import Subscription from '../models/subscriptionModel.js';
 import { subscriptionValidator } from '../validators/subscriptionValidator.js';
-import mongoose from 'mongoose';
-
+import Adherent from '../models/adherentModel.js'; // Importation du modèle Adherent
 
 // ✅ Fonction utilitaire pour transformer les erreurs Joi en objet simple
 const formatJoiErrors = (details) => {
@@ -70,11 +70,9 @@ export const getAllSubscriptions = async (req, res) => {
   }
 };
 
-
-
-
+// ✅ Fonction pour créer un abonnement
 export const createSubscription = async (req, res) => {
-  const { error } = subscriptionValidator.validate(req.body);
+  const { error } = subscriptionValidator.validate(req.body); // Validation Joi
   if (error) {
     return res.status(400).json(formatJoiErrors(error.details));
   }
@@ -82,12 +80,19 @@ export const createSubscription = async (req, res) => {
   try {
     let { adherent, startDate, duration, type } = req.body;
 
-    // Vérifier l'ID de l'adhérent
+    // Affichage du corps de la requête pour vérifier l'ID
+    console.log('Corps de la requête reçu:', req.body);
+
+    // Vérification de l'ID de l'adhérent (s'il est valide)
     if (!mongoose.Types.ObjectId.isValid(adherent)) {
       return res.status(400).json({ adherent: "ID adhérent invalide" });
     }
 
-    const adherentId = new mongoose.Types.ObjectId(adherent);
+    // Vérification de l'existence de l'adhérent dans la base de données
+    const existingAdherent = await Adherent.findById(adherent);
+    if (!existingAdherent) {
+      return res.status(404).json({ message: "Adhérent non trouvé" });
+    }
 
     // Normaliser la date de début
     const normalizedStartDate = new Date(startDate);
@@ -98,24 +103,27 @@ export const createSubscription = async (req, res) => {
       return res.status(400).json({ startDate: "Date de début invalide" });
     }
 
-    // Vérifier s’il existe déjà un abonnement actif
-    const existing = await Subscription.findOne({ adherent: adherentId });
+    // Vérifier s’il existe déjà un abonnement actif pour cet adhérent
+    const existing = await Subscription.findOne({ adherent });
     if (existing && existing.endDate >= new Date()) {
       return res.status(409).json({
         adherentId: "Un abonnement actif existe déjà pour cet adhérent.",
       });
     }
 
+    // Calcul de la date de fin de l'abonnement
     const endDate = calculateEndDate(normalizedStartDate, duration, type);
 
+    // Création de l'abonnement
     const newSubscription = new Subscription({
-      adherent: adherentId,
+      adherent,
       startDate: normalizedStartDate,
       duration,
       type,
       endDate,
     });
 
+    // Sauvegarde de l'abonnement
     const savedSubscription = await newSubscription.save();
     res.status(201).json(savedSubscription);
   } catch (error) {
@@ -150,9 +158,13 @@ export const updateSubscription = async (req, res) => {
       return res.status(400).json({ adherent: "Adhérent requis" });
     }
 
-    // Vérifier les doublons : existe-t-il un abonnement autre que celui qu'on modifie,
-    // avec le même adhérent et le même type, qui pourrait se chevaucher ?
+    // Vérifier l'existence de l'adhérent
+    const existingAdherent = await Adherent.findById(adherent);
+    if (!existingAdherent) {
+      return res.status(404).json({ message: "Adhérent non trouvé" });
+    }
 
+    // Normaliser la date de début
     const normalizedStartDate = new Date(startDate);
     normalizedStartDate.setHours(0, 0, 0, 0);
 

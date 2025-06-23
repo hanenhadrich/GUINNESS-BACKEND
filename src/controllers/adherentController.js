@@ -1,6 +1,15 @@
 import Adherent from '../models/adherentModel.js';
 import { adherentValidator } from '../validators/adherentValidator.js';
 
+//majuscule
+const capitalizeFirstWord = (text) => {
+  if (!text) return '';
+  const words = text.split(' ');
+  words[0] = words[0].charAt(0).toUpperCase() + words[0].slice(1).toLowerCase(); // Met le premier mot en majuscule
+  return words.join(' ');
+};
+
+
 // 🔍 Récupérer tous les adhérents avec filtres facultatifs
 export const getAllAdherents = async (req, res) => {
   try {
@@ -47,6 +56,11 @@ export const createAdherent = async (req, res) => {
   }
 
   try {
+    // Capitalisation des champs nom, prénom, email
+    req.body.nom = capitalizeFirstWord(req.body.nom);
+    req.body.prenom = capitalizeFirstWord(req.body.prenom);
+    req.body.email = capitalizeFirstWord(req.body.email);
+
     const existingEmail = await Adherent.findOne({ email: req.body.email });
     if (existingEmail) {
       if (!allErrors.email) allErrors.email = [];
@@ -75,7 +89,6 @@ export const createAdherent = async (req, res) => {
     });
   }
 };
-
 // ✏️ Mettre à jour un adhérent avec erreurs cumulées
 export const updateAdherent = async (req, res) => {
   const { adherentId } = req.params;
@@ -97,6 +110,11 @@ export const updateAdherent = async (req, res) => {
     if (!adherent) {
       return res.status(404).json({ message: 'Adhérent non trouvé' });
     }
+
+    // Capitalisation des champs nom, prénom, email avant la mise à jour
+    req.body.nom = capitalizeFirstWord(req.body.nom);
+    req.body.prenom = capitalizeFirstWord(req.body.prenom);
+    req.body.email = capitalizeFirstWord(req.body.email);
 
     // Vérifier email unique (sauf pour l'adhérent courant)
     const existingEmail = await Adherent.findOne({ email: req.body.email, _id: { $ne: adherentId } });
@@ -128,6 +146,7 @@ export const updateAdherent = async (req, res) => {
     });
   }
 };
+
 
 // 🗑️ Supprimer un adhérent
 export const deleteAdherent = async (req, res) => {
