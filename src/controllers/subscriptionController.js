@@ -3,7 +3,7 @@ import Subscription from '../models/subscriptionModel.js';
 import { subscriptionValidator } from '../validators/subscriptionValidator.js';
 import Adherent from '../models/adherentModel.js'; // Importation du modèle Adherent
 
-// ✅ Fonction utilitaire pour transformer les erreurs Joi en objet simple
+// Fonction utilitaire pour transformer les erreurs Joi en objet simple
 const formatJoiErrors = (details) => {
   const errors = {};
   details.forEach((err) => {
@@ -13,7 +13,7 @@ const formatJoiErrors = (details) => {
   return errors;
 };
 
-// ✅ Fonction utilitaire pour calculer la date de fin d’un abonnement
+// Fonction utilitaire pour calculer la date de fin d’un abonnement
 const calculateEndDate = (startDate, duration, type) => {
   const endDate = new Date(startDate);
   if (type === 'semaine') {
@@ -70,7 +70,7 @@ export const getAllSubscriptions = async (req, res) => {
   }
 };
 
-// ✅ Fonction pour créer un abonnement
+// Fonction pour créer un abonnement
 export const createSubscription = async (req, res) => {
   const { error } = subscriptionValidator.validate(req.body); // Validation Joi
   if (error) {
@@ -80,8 +80,7 @@ export const createSubscription = async (req, res) => {
   try {
     let { adherent, startDate, duration, type } = req.body;
 
-    // Affichage du corps de la requête pour vérifier l'ID
-    console.log('Corps de la requête reçu:', req.body);
+  
 
     // Vérification de l'ID de l'adhérent (s'il est valide)
     if (!mongoose.Types.ObjectId.isValid(adherent)) {
@@ -153,7 +152,7 @@ export const updateSubscription = async (req, res) => {
       return res.status(404).json({ message: "Abonnement non trouvé" });
     }
 
-    const { adherent, startDate, duration, type } = req.body; // ajout adherent
+    const { adherent, startDate, duration, type } = req.body; 
     if (!adherent) {
       return res.status(400).json({ adherent: "Adhérent requis" });
     }
@@ -176,7 +175,7 @@ export const updateSubscription = async (req, res) => {
 
     // Recherche d'un abonnement conflictuel
     const duplicate = await Subscription.findOne({
-      _id: { $ne: subscriptionId }, // exclure abonnement actuel
+      _id: { $ne: subscriptionId }, 
       adherent: adherent,
       type: type,
       $or: [

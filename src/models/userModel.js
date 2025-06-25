@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+//hachage de mots de passe
 import bcrypt from 'bcryptjs';
 
 
@@ -22,7 +23,7 @@ const UserSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-
+// Middleware avant sauvegarde
 UserSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
   try {

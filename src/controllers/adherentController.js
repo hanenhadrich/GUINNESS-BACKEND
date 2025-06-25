@@ -10,8 +10,9 @@ const capitalizeFirstWord = (text) => {
 };
 
 
-// 🔍 Récupérer tous les adhérents avec filtres facultatifs
+// Récupérer tous les adhérents avec filtres facultatifs
 export const getAllAdherents = async (req, res) => {
+  // Construit une requête MongoDB utilisant des regex ($regex, $options: 'i' pour insensible à la casse)
   try {
     const { nom, prenom, email } = req.query;
     let query = {};
@@ -40,8 +41,9 @@ export const getAllAdherents = async (req, res) => {
   }
 };
 
-// ➕ Créer un nouvel adhérent avec erreurs cumulées
+//  Créer un nouvel adhérent avec erreurs cumulées
 export const createAdherent = async (req, res) => {
+  // Valide le corps de la requête
   const { error } = adherentValidator.validate(req.body, { abortEarly: false });
 
   // Construire un objet pour les erreurs par champ
@@ -56,7 +58,7 @@ export const createAdherent = async (req, res) => {
   }
 
   try {
-    // Capitalisation des champs nom, prénom, email
+    
     req.body.nom = capitalizeFirstWord(req.body.nom);
     req.body.prenom = capitalizeFirstWord(req.body.prenom);
     req.body.email = capitalizeFirstWord(req.body.email);
@@ -89,7 +91,7 @@ export const createAdherent = async (req, res) => {
     });
   }
 };
-// ✏️ Mettre à jour un adhérent avec erreurs cumulées
+// Mettre à jour un adhérent avec erreurs cumulées
 export const updateAdherent = async (req, res) => {
   const { adherentId } = req.params;
   const { error } = adherentValidator.validate(req.body, { abortEarly: false });
@@ -111,19 +113,19 @@ export const updateAdherent = async (req, res) => {
       return res.status(404).json({ message: 'Adhérent non trouvé' });
     }
 
-    // Capitalisation des champs nom, prénom, email avant la mise à jour
+    
     req.body.nom = capitalizeFirstWord(req.body.nom);
     req.body.prenom = capitalizeFirstWord(req.body.prenom);
     req.body.email = capitalizeFirstWord(req.body.email);
 
-    // Vérifier email unique (sauf pour l'adhérent courant)
+    
     const existingEmail = await Adherent.findOne({ email: req.body.email, _id: { $ne: adherentId } });
     if (existingEmail) {
       if (!allErrors.email) allErrors.email = [];
       allErrors.email.push('Cet email est déjà utilisé par un autre adhérent.');
     }
 
-    // Vérifier téléphone unique (sauf pour l'adhérent courant)
+    
     const existingTelephone = await Adherent.findOne({ telephone: req.body.telephone, _id: { $ne: adherentId } });
     if (existingTelephone) {
       if (!allErrors.telephone) allErrors.telephone = [];
@@ -148,7 +150,7 @@ export const updateAdherent = async (req, res) => {
 };
 
 
-// 🗑️ Supprimer un adhérent
+//  Supprimer un adhérent
 export const deleteAdherent = async (req, res) => {
   const { adherentId } = req.params;
 
