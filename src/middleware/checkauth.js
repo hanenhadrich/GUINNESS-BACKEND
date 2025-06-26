@@ -1,39 +1,31 @@
 import jwt from "jsonwebtoken";
+import User from "../models/userModel.js";
 
 const checkAuth = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
-
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(400).json({ error: 'Authorization header must be in the format "Bearer <token>"' });
+      return res.status(401).json({ error: 'Authorization header missing or malformed' });
     }
-
     const token = authHeader.split(" ")[1];
 
-    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-    const userId = decodedToken.userId;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
- 
-    const { default: User } = await import("../models/userModel.js");
+    // Vérifie que l'utilisateur existe
+    const user = await User.findById(decoded.userId);
+    if (!user) return res.status(401).json({ error: "User not found" });
 
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(401).json({ error: "Invalid token, user does not exist" });
-    }
-
-    req.user = user;
+    // Stocke uniquement l'ID pour la suite
+    req.user = { userId: decoded.userId };
     next();
-  } catch (error) {
-    if (error.name === "TokenExpiredError") {
-      return res.status(401).json({ error: "Token has expired, please login again" });
+  } catch (err) {
+    if (err.name === "TokenExpiredError") {
+      return res.status(401).json({ error: "Token expired, please login again" });
     }
-
-    if (error.name === "JsonWebTokenError") {
+    if (err.name === "JsonWebTokenError") {
       return res.status(401).json({ error: "Invalid token, authorization denied" });
     }
-
-    console.error(error);
-    return res.status(500).json({ error: "Something went wrong with the authentication" });
+    return res.status(500).json({ error: "Authentication error" });
   }
 };
 
