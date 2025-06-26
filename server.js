@@ -10,7 +10,7 @@ import reservationRoutes from './src/routes/reservationRoutes.js';
 import adherentRoutes from './src/routes/adherentRoutes.js';
 import subscriptionRoutes from './src/routes/subscriptionRoutes.js';
 import userRoutes from './src/routes/userRoutes.js';
-
+import userReclamations from './src/routes/reclamationRoutes.js';
 
 dotenv.config();
 
@@ -46,6 +46,7 @@ app.use('/reservations', reservationRoutes);
 app.use('/adherents', adherentRoutes);
 app.use('/subscriptions', subscriptionRoutes);
 app.use('/users', userRoutes);
+app.use('/reclamations', userReclamations);
 
 
 app.use((req, res) => {

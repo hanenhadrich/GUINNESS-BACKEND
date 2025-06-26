@@ -20,6 +20,11 @@ export const registerValidator = Joi.object({
     "string.min": "Password must be at least 6 characters long",
     "any.required": "Password is required"
   }),
+  telephone: Joi.string().pattern(/^\+216\d{8}$/).required().messages({
+    "string.base": "Phone number must be a string",
+    "string.pattern.base": "Please enter a valid Tunisian phone number (e.g. +21612345678)",
+    "any.required": "Phone number is required"
+  })
 });
 
 export const loginValidator = Joi.object({
@@ -32,5 +37,5 @@ export const loginValidator = Joi.object({
     "string.base": "Password must be a string",
     "string.min": "Password must be at least 6 characters long",
     "any.required": "Password is required"
-  }),
+  })
 });

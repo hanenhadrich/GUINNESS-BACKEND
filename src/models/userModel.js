@@ -1,7 +1,5 @@
 import mongoose from 'mongoose';
-//hachage de mots de passe
 import bcrypt from 'bcryptjs';
-
 
 const UserSchema = new mongoose.Schema(
   {
@@ -13,17 +11,22 @@ const UserSchema = new mongoose.Schema(
       unique: true,
       match: [/^\S+@\S+\.\S+$/, 'Please use a valid email address'],
     },
+    telephone: {
+      type: String,
+      required: true,
+      match: [/^\+216\d{8}$/, 'Le numéro de téléphone doit être au format +216XXXXXXXX'],
+    },
     password: { type: String, required: true },
     role: {
       type: String,
       enum: ['user', 'admin'],
-      default: 'user'
+      default: 'user',
     }
   },
   { timestamps: true }
 );
 
-// Middleware avant sauvegarde
+// Hachage du mot de passe avant sauvegarde
 UserSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
   try {
@@ -35,10 +38,8 @@ UserSchema.pre('save', async function (next) {
   }
 });
 
-
 UserSchema.methods.comparePassword = async function (password) {
   return bcrypt.compare(password, this.password);
 };
-
 
 export default mongoose.model('User', UserSchema);
