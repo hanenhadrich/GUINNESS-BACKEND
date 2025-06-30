@@ -4,8 +4,8 @@ import {
   createReclamation,
   getAllReclamations,
   getReclamationById,
-  updateReclamation,
   deleteReclamation,
+  markReclamationAsRead 
 } from '../controllers/reclamationController.js';
 
 const router = express.Router();
@@ -13,7 +13,6 @@ const router = express.Router();
 router.post('/', createReclamation);
 router.get('/', getAllReclamations);
 router.get('/:id', getReclamationById);
-router.put('/:id', updateReclamation);
 router.delete('/:id', deleteReclamation);
-
+router.patch('/:id/read', markReclamationAsRead);
 export default router;

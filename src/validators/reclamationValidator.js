@@ -1,4 +1,3 @@
-// validators/reclamationValidator.js
 import Joi from "joi";
 
 export const reclamationValidator = Joi.object({

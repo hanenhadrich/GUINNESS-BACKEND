@@ -1,4 +1,4 @@
-// models/reclamationModel.js
+
 import mongoose from "mongoose";
 
 const reclamationSchema = new mongoose.Schema(
@@ -44,6 +44,11 @@ const reclamationSchema = new mongoose.Schema(
       enum: ["en_attente", "en_cours", "résolue"],
       default: "en_attente",
     },
+    isRead: {
+      type: Boolean,
+      default: false
+    }
+
   },
   { timestamps: true }
 );

@@ -1,19 +1,18 @@
 import Adherent from '../models/adherentModel.js';
 import { adherentValidator } from '../validators/adherentValidator.js';
 
-//majuscule
+
 const capitalizeFirstWord = (text) => {
   if (!text) return '';
   const words = text.split(' ');
-  words[0] = words[0].charAt(0).toUpperCase() + words[0].slice(1).toLowerCase(); // Met le premier mot en majuscule
+  words[0] = words[0].charAt(0).toUpperCase() + words[0].slice(1).toLowerCase(); 
   return words.join(' ');
 };
 
 
-// Récupérer tous les adhérents avec filtres facultatifs
+
 export const getAllAdherents = async (req, res) => {
-  // Construit une requête MongoDB utilisant des regex ($regex, $options: 'i' pour insensible à la casse)
-  try {
+    try {
     const { nom, prenom, email } = req.query;
     let query = {};
 
@@ -41,12 +40,12 @@ export const getAllAdherents = async (req, res) => {
   }
 };
 
-//  Créer un nouvel adhérent avec erreurs cumulées
+
 export const createAdherent = async (req, res) => {
-  // Valide le corps de la requête
+
   const { error } = adherentValidator.validate(req.body, { abortEarly: false });
 
-  // Construire un objet pour les erreurs par champ
+
   const allErrors = {};
 
   if (error) {
@@ -91,12 +90,12 @@ export const createAdherent = async (req, res) => {
     });
   }
 };
-// Mettre à jour un adhérent avec erreurs cumulées
+
 export const updateAdherent = async (req, res) => {
   const { adherentId } = req.params;
   const { error } = adherentValidator.validate(req.body, { abortEarly: false });
 
-  // Construire un objet pour les erreurs par champ
+
   const allErrors = {};
 
   if (error) {
@@ -150,7 +149,7 @@ export const updateAdherent = async (req, res) => {
 };
 
 
-//  Supprimer un adhérent
+
 export const deleteAdherent = async (req, res) => {
   const { adherentId } = req.params;
 

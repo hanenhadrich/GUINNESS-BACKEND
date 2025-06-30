@@ -1,10 +1,8 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv'; 
-import bodyParser from 'body-parser';
 import cors from 'cors';
-
-
+//ROUTES
 import todoRoutes from './src/routes/todoRoutes.js'; 
 import reservationRoutes from './src/routes/reservationRoutes.js'; 
 import adherentRoutes from './src/routes/adherentRoutes.js';
@@ -35,12 +33,12 @@ mongoose.connect(process.env.DB_CONNECTION)
     process.exit(1);
   });
 
-
+//TEST 
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to the API" });
 });
 
-
+//ROUTES
 app.use('/todos', todoRoutes);
 app.use('/reservations', reservationRoutes);
 app.use('/adherents', adherentRoutes);

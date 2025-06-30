@@ -87,15 +87,14 @@ export const updateProfile = async (req, res) => {
 
     const { firstName, lastName, email, telephone, password } = req.body;
 
-    // Vérifier unicité email si modifié
+   
     if (email && email !== user.email) {
       const emailExists = await User.findOne({ email });
       if (emailExists) return res.status(409).json({ error: "Un compte avec cet email existe déjà" });
       user.email = email;
     }
 
-    // Vérifier unicité téléphone si modifié
-    if (telephone && telephone !== user.telephone) {
+        if (telephone && telephone !== user.telephone) {
       const phoneExists = await User.findOne({ telephone });
       if (phoneExists) return res.status(409).json({ error: "Un compte avec ce téléphone existe déjà" });
       user.telephone = telephone;

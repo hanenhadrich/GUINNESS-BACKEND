@@ -1,9 +1,9 @@
 import Reclamation from '../models/reclamationModel.js';
 import { reclamationValidator } from '../validators/reclamationValidator.js';
 
-// Création d'une réclamation
+
 export const createReclamation = async (req, res) => {
-  // Valider les données
+  
   const { error } = reclamationValidator.validate(req.body, { abortEarly: false });
   if (error) {
     const errors = error.details.reduce((acc, err) => {
@@ -23,7 +23,7 @@ export const createReclamation = async (req, res) => {
   }
 };
 
-// Récupérer toutes les réclamations
+
 export const getAllReclamations = async (req, res) => {
   try {
     const reclamations = await Reclamation.find().sort({ createdAt: -1 });
@@ -34,7 +34,7 @@ export const getAllReclamations = async (req, res) => {
   }
 };
 
-// Récupérer une réclamation par ID
+//PAS ENCORE TRAVAILLER DANS LE FRONT
 export const getReclamationById = async (req, res) => {
   try {
     const reclamation = await Reclamation.findById(req.params.id);
@@ -47,35 +47,7 @@ export const getReclamationById = async (req, res) => {
   }
 };
 
-// Mettre à jour une réclamation
-export const updateReclamation = async (req, res) => {
-  const { error } = reclamationValidator.validate(req.body, { abortEarly: false });
-  if (error) {
-    const errors = error.details.reduce((acc, err) => {
-      acc[err.context.key] = err.message;
-      return acc;
-    }, {});
-    return res.status(400).json(errors);
-  }
 
-  try {
-    const updated = await Reclamation.findByIdAndUpdate(
-      req.params.id,
-      { ...req.body },
-      { new: true }
-    );
-
-    if (!updated) {
-      return res.status(404).json({ message: 'Réclamation non trouvée' });
-    }
-
-    res.status(200).json(updated);
-  } catch (err) {
-    res.status(500).json({ message: 'Erreur lors de la mise à jour', error: err.message });
-  }
-};
-
-// Supprimer une réclamation
 export const deleteReclamation = async (req, res) => {
   try {
     const deleted = await Reclamation.findByIdAndDelete(req.params.id);
@@ -87,3 +59,23 @@ export const deleteReclamation = async (req, res) => {
     res.status(500).json({ message: 'Erreur lors de la suppression', error: err.message });
   }
 };
+
+export const markReclamationAsRead = async (req, res) => {
+  try {
+    const updated = await Reclamation.findByIdAndUpdate(
+      req.params.id,
+      { isRead: true },
+      { new: true }
+    );
+
+    if (!updated) {
+      return res.status(404).json({ message: 'Réclamation non trouvée' });
+    }
+
+    res.status(200).json(updated);
+  } catch (err) {
+    console.error('Erreur lors de la mise à jour de la réclamation :', err.message);
+    res.status(500).json({ message: 'Erreur serveur', error: err.message });
+  }
+};
+

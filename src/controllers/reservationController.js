@@ -38,32 +38,6 @@ export const createReservation = async (req, res) => {
   }
 };
 
-export const updateReservation = async (req, res) => {
-  const { reservationId } = req.params;
-  const { error } = listValidator.validate(req.body);
-
-  if (error) {
-    return res.status(400).json({ message: 'Données invalides', details: error.details });
-  }
-
-  const { title, description, dueDate, priority, completed } = req.body;
-
-  try {
-    const reservation = await Reservation.findById(reservationId);
-    if (!reservation) return res.status(404).json({ message: 'Réservation non trouvée' });
-
-    reservation.title = title || reservation.title;
-    reservation.description = description || reservation.description;
-    reservation.dueDate = dueDate || reservation.dueDate;
-    reservation.priority = priority || reservation.priority;
-    reservation.completed = completed !== undefined ? completed : reservation.completed;
-
-    const updatedReservation = await reservation.save();
-    res.status(200).json(updatedReservation);
-  } catch (error) {
-    res.status(500).json({ message: 'Erreur lors de la mise à jour de la réservation', error: error.message });
-  }
-};
 
 export const deleteReservation = async (req, res) => {
   const { reservationId } = req.params;

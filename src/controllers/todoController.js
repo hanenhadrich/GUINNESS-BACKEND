@@ -39,34 +39,6 @@ export const createTodo = async (req, res) => {
   }
 };
 
-export const updateTodo = async (req, res) => {
-  const { todoId } = req.params;
-
-
-  const { error } = listValidator.validate(req.body);
-
-  if (error) {
-    return res.status(400).json({ message: 'Données invalides', details: error.details });
-  }
-
-  const { title, description, dueDate, priority, completed } = req.body;
-
-  try {
-    const todo = await Todo.findById(todoId);
-    if (!todo) return res.status(404).json({ message: 'Tâche non trouvée' });
-
-    todo.title = title || todo.title;
-    todo.description = description || todo.description;
-    todo.dueDate = dueDate || todo.dueDate;
-    todo.priority = priority || todo.priority;
-    todo.completed = completed !== undefined ? completed : todo.completed;
-
-    const updatedTodo = await todo.save();
-    res.status(200).json(updatedTodo);
-  } catch (error) {
-    res.status(500).json({ message: 'Erreur lors de la mise à jour de la tâche', error: error.message });
-  }
-};
 
 export const deleteTodo = async (req, res) => {
   const { todoId } = req.params;
