@@ -4,7 +4,6 @@ import { listValidator } from '../validators/listValidator.js';
 
 export const getAllTodos = async (req, res) => {
   try {
-    console.log("Requête reçue pour obtenir les todos...");
     const todos = await Todo.find();  
     res.json(todos); 
   } catch (error) {

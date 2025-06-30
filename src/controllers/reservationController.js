@@ -3,7 +3,7 @@ import { listValidator } from '../validators/listValidator.js';
 
 export const getAllReservations = async (req, res) => {
   try {
-    console.log("Requête reçue pour obtenir les réservations...");
+    
     const reservations = await Reservation.find();  
     res.json(reservations); 
   } catch (error) {
