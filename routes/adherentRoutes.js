@@ -4,7 +4,7 @@ import {
   createAdherent,
   updateAdherent,
   deleteAdherent
-} from '../../controllers/adherentController.js';
+} from '../controllers/adherentController.js';
 
 const router = express.Router();
 

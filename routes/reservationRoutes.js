@@ -3,7 +3,7 @@ import {
   getAllReservations,
   createReservation,
   deleteReservation
-} from '../../controllers/reservationController.js';
+} from '../controllers/reservationController.js';
 
 const router = express.Router();
 
