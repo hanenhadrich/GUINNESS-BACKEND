@@ -2,9 +2,10 @@ import jwt from "jsonwebtoken";
 import User from "../models/userModel.js";
 import { registerValidator, loginValidator, updateProfileValidator } from "../validators/userValidator.js";
 
-// Register
+
 export const register = async (req, res) => {
   try {
+    // 	La validation n'arrête pas dès la première erreur trouvée et affiche toutes les erreurs
     const { error } = registerValidator.validate(req.body, { abortEarly: false });
     if (error) {
       return res.status(400).json({
@@ -16,7 +17,7 @@ export const register = async (req, res) => {
     }
 
     const { firstName, lastName, email, password, telephone } = req.body;
-
+// l'email OU le téléphone correspond
     const existingUser = await User.findOne({ $or: [{ email }, { telephone }] });
     if (existingUser) {
       return res.status(409).json({ error: "Un compte avec cet email ou téléphone existe déjà" });
@@ -32,7 +33,7 @@ export const register = async (req, res) => {
   }
 };
 
-// Login
+
 export const login = async (req, res) => {
   try {
     const { error } = loginValidator.validate(req.body, { abortEarly: false });
@@ -68,7 +69,7 @@ export const login = async (req, res) => {
   }
 };
 
-// Update Profile
+
 export const updateProfile = async (req, res) => {
   try {
     const userId = req.user.userId;

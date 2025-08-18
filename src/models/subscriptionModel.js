@@ -12,16 +12,23 @@ const subscriptionSchema = new mongoose.Schema({
   },
   duration: { 
     type: Number, 
-    required: true 
+    required: false, 
   },
   endDate: { 
     type: Date, 
-    required: true 
+    required: true,
+    validate: {
+      validator: function(value) {
+        return value >= this.startDate;
+      },
+      message: "La date de fin doit être supérieure ou égale à la date de début"
+    }
   },
   type: { 
     type: String, 
     enum: ['semaine', 'mois', 'an', 'autre'], 
-    required: true 
+    required: true,
+    default: 'autre'
   },
   status: { 
     type: String, 
@@ -29,6 +36,9 @@ const subscriptionSchema = new mongoose.Schema({
     default: 'active' 
   },
 }, { timestamps: true });
+
+// Index utile pour requêtes par adhérent et période
+subscriptionSchema.index({ adherent: 1, startDate: 1, endDate: 1 });
 
 const Subscription = mongoose.model('Subscription', subscriptionSchema);
 

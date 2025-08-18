@@ -1,4 +1,4 @@
-// routes/reclamationRoutes.js
+
 import express from 'express';
 import {
   createReclamation,

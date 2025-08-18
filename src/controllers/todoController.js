@@ -51,3 +51,23 @@ export const deleteTodo = async (req, res) => {
     res.status(500).json({ message: 'Erreur lors de la suppression de la tâche', error: error.message });
   }
 };
+
+export const updateTodo = async (req, res) => {
+  const { todoId } = req.params;
+
+  try {
+    const updatedTodo = await Todo.findByIdAndUpdate(todoId, req.body, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!updatedTodo) {
+      return res.status(404).json({ message: "Tâche non trouvée" });
+    }
+
+    res.json(updatedTodo);
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour de la tâche:", error);
+    res.status(500).json({ message: "Erreur serveur", error: error.message });
+  }
+};

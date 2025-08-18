@@ -1,6 +1,4 @@
 import mongoose from 'mongoose';
-
-
 const adherentSchema = new mongoose.Schema(
   {
     nom: { type: String, required: true },

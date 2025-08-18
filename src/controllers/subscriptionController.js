@@ -13,18 +13,19 @@ const formatJoiErrors = (details) => {
   return errors;
 };
 
-// calculer la date de fin d’un abonnement
 const calculateEndDate = (startDate, duration, type) => {
   const endDate = new Date(startDate);
-  if (type === 'semaine') {
-    endDate.setDate(endDate.getDate() + duration * 7);
-  } else if (type === 'mois') {
-    endDate.setMonth(endDate.getMonth() + duration);
-  } else if (type === 'an') {
-    endDate.setFullYear(endDate.getFullYear() + duration);
+
+  if (type === 'mois' && duration === 30) {
+    endDate.setDate(endDate.getDate() + duration - 1);
+  } else {
+    endDate.setDate(endDate.getDate() + duration);
   }
+
   return endDate;
 };
+
+
 
 export const getAllSubscriptions = async (req, res) => {
   try {
@@ -71,7 +72,7 @@ export const getAllSubscriptions = async (req, res) => {
 };
 
 export const createSubscription = async (req, res) => {
-  const { error } = subscriptionValidator.validate(req.body); // Validation Joi
+  const { error } = subscriptionValidator.validate(req.body); 
   if (error) {
     return res.status(400).json(formatJoiErrors(error.details));
   }

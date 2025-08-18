@@ -9,8 +9,6 @@ const capitalizeFirstWord = (text) => {
   return words.join(' ');
 };
 
-
-
 export const getAllAdherents = async (req, res) => {
     try {
     const { nom, prenom, email } = req.query;
@@ -44,7 +42,6 @@ export const getAllAdherents = async (req, res) => {
 export const createAdherent = async (req, res) => {
 
   const { error } = adherentValidator.validate(req.body, { abortEarly: false });
-
 
   const allErrors = {};
 
@@ -95,7 +92,6 @@ export const updateAdherent = async (req, res) => {
   const { adherentId } = req.params;
   const { error } = adherentValidator.validate(req.body, { abortEarly: false });
 
-
   const allErrors = {};
 
   if (error) {
@@ -112,19 +108,16 @@ export const updateAdherent = async (req, res) => {
       return res.status(404).json({ message: 'Adhérent non trouvé' });
     }
 
-    
     req.body.nom = capitalizeFirstWord(req.body.nom);
     req.body.prenom = capitalizeFirstWord(req.body.prenom);
     req.body.email = capitalizeFirstWord(req.body.email);
 
-    
     const existingEmail = await Adherent.findOne({ email: req.body.email, _id: { $ne: adherentId } });
     if (existingEmail) {
       if (!allErrors.email) allErrors.email = [];
       allErrors.email.push('Cet email est déjà utilisé par un autre adhérent.');
     }
 
-    
     const existingTelephone = await Adherent.findOne({ telephone: req.body.telephone, _id: { $ne: adherentId } });
     if (existingTelephone) {
       if (!allErrors.telephone) allErrors.telephone = [];

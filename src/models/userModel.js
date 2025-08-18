@@ -28,6 +28,7 @@ const UserSchema = new mongoose.Schema(
 
 // Hachage du mot de passe avant sauvegarde
 UserSchema.pre('save', async function (next) {
+  //meme password
   if (!this.isModified('password')) return next();
   try {
     const salt = await bcrypt.genSalt(10);
