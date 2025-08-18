@@ -3,12 +3,13 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv'; 
 import cors from 'cors';
 //ROUTES
-import todoRoutes from './src/routes/todoRoutes.js'; 
-import reservationRoutes from './src/routes/reservationRoutes.js'; 
-import adherentRoutes from './src/routes/adherentRoutes.js';
-import subscriptionRoutes from './src/routes/subscriptionRoutes.js';
-import userRoutes from './src/routes/userRoutes.js';
-import userReclamations from './src/routes/reclamationRoutes.js';
+import todoRoutes from './routes/todoRoutes.js'; 
+import reservationRoutes from './routes/reservationRoutes.js'; 
+import adherentRoutes from './routes/adherentRoutes.js';
+import subscriptionRoutes from './routes/subscriptionRoutes.js';
+import userRoutes from './routes/userRoutes.js';
+import userReclamations from './routes/reclamationRoutes.js';
+
 
 dotenv.config();
 
