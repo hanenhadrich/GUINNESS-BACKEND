@@ -1,4 +1,4 @@
-import Reservation from '../models/ReservationModel.js';
+import Reservation from '../models/reservationModel.js';
 import { listValidator } from '../validators/listValidator.js';  
 
 export const getAllReservations = async (req, res) => {
