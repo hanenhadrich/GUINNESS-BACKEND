@@ -6,7 +6,7 @@ import {
   getReclamationById,
   deleteReclamation,
   markReclamationAsRead 
-} from '../controllers/reclamationController.js';
+} from '../../controllers/reclamationController.js';
 
 const router = express.Router();
 
