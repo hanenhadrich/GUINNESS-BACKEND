@@ -16,14 +16,18 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 9090;
 
+import cors from "cors";
+
 app.use(cors({
   origin: [
-    "http://localhost:5173",         // dev local
-    process.env.APP_URL           // frontend Vercel
+    "http://localhost:5173",           // dev local
+    "https://guinness-flax.vercel.app" // ton frontend Vercel
   ],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true
 }));
-app.use(express.json()); 
+ 
 
 
 mongoose.set('strictQuery', true);
