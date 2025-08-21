@@ -16,7 +16,13 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 9090;
 
-app.use(cors()); 
+app.use(cors({
+  origin: [
+    "http://localhost:5173",         // dev local
+    process.env.APP_URL           // frontend Vercel
+  ],
+  credentials: true
+}));
 app.use(express.json()); 
 
 
