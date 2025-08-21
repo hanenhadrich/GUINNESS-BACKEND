@@ -2,7 +2,8 @@ import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv'; 
 import cors from 'cors';
-//ROUTES
+
+// ROUTES
 import todoRoutes from './routes/todoRoutes.js'; 
 import reservationRoutes from './routes/reservationRoutes.js'; 
 import adherentRoutes from './routes/adherentRoutes.js';
@@ -10,42 +11,38 @@ import subscriptionRoutes from './routes/subscriptionRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import userReclamations from './routes/reclamationRoutes.js';
 
-
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 9090;
 
+// ------------------ CORS ------------------
+const allowedOrigins = [
+  "http://localhost:5173", // dev local
+  process.env.APP_URL       // frontend Vercel
+];
+
 app.use(cors({
-  origin: [
-    "http://localhost:5173",         // dev local
-    process.env.APP_URL           // frontend Vercel
-  ],
+  origin: allowedOrigins,
   credentials: true
 }));
-app.use(express.json()); 
 
+app.use(express.json());
 
+// ------------------ Connexion MongoDB ------------------
 mongoose.set('strictQuery', true);
 mongoose.connect(process.env.DB_CONNECTION)
   .then(() => {
     console.log('Successfully connected to MongoDB');
-    
-    app.listen(PORT, () => {
-      console.log(`Server is listening on port ${PORT}`);
-    });
+    app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
   })
   .catch(error => {
     console.log("Error connecting to MongoDB:", error);
     process.exit(1);
   });
 
-//TEST 
-app.get("/", (req, res) => {
-  res.json({ message: "Welcome to the API" });
-});
-
-//ROUTES
+// ------------------ Routes ------------------
+// chemins relatifs ✅
 app.use('/todos', todoRoutes);
 app.use('/reservations', reservationRoutes);
 app.use('/adherents', adherentRoutes);
@@ -53,7 +50,5 @@ app.use('/subscriptions', subscriptionRoutes);
 app.use('/users', userRoutes);
 app.use('/reclamations', userReclamations);
 
-
-app.use((req, res) => {
-  res.status(404).json({ message: "Route not found" });
-});
+// 404
+app.use((req, res) => res.status(404).json({ message: "Route not found" }));

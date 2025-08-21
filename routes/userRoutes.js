@@ -4,6 +4,7 @@ import checkAuth from "../middleware/checkauth.js";
 
 const router = express.Router();
 
+// ✅ Tous les chemins relatifs
 router.post("/register", register);
 router.post("/login", login);
 router.post("/logout", logout);
